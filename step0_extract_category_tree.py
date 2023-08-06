@@ -1,16 +1,15 @@
-# import libraries
 import fred as f
 import json
 import pandas as pd
 import time
 
 
-# globals
+# file names
 INPUT = r'./json/api_keys.json'
 OUTPUT = r'./json/fred_category_extract_test_2023_08_02.json'
 ROOT_NODE = 33839
 
-# Opening JSON file
+# load api_key
 p = open(INPUT)
 api_key = json.load(p)
 
@@ -64,7 +63,7 @@ def main():
     cat_dict = {}
     tree(api=api, parent=ROOT_NODE, output_dict=cat_dict)
 
-    # json to stdout
+    # dict to json output
     out_file = open(OUTPUT, 'w')
     json.dump(cat_dict, out_file, indent=6)
     out_file.close()
