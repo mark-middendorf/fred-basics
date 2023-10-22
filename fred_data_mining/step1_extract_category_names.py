@@ -1,4 +1,4 @@
-import fred as f
+from fred_data_mining import fred as f
 import json
 import pandas as pd
 import time
