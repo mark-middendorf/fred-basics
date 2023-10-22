@@ -1,0 +1,119 @@
+{
+  "0060_print_share_usage_unfiltered_agg_pass2_v2": {
+    "0060.psu_data_a": {
+      "label": "cte_0",
+      "index": 0,
+      "description": "transform staging table; filters applied",
+      "sources": [
+        "dashboard.print_share_usage_stg"
+      ],
+      "depends_on": []
+    },
+    "0060.union_ib_with_no_telemetry": {
+      "label": "cte_1",
+      "index": 1,
+      "description": "add IB data",
+      "sources": [
+        "dashboard.ib_with_no_telemetry_records_stg_pass2"
+      ],
+      "depends_on": [
+        "0060.psu_data_a"
+      ]
+    },
+    "0060.main_select": {
+      "label": "main_select",
+      "index": 2,
+      "description": "final step",
+      "sources": [],
+      "depends_on": [
+        "0060.union_ib_with_no_telemetry"
+      ]
+    }
+  },
+  "0070_print_share_usage_agg": {
+    "0070.psu_agg": {
+      "label": "cte_0",
+      "index": 0,
+      "description": "additional transformations",
+      "sources": [
+        "dashboard.dbt_test_print_share_usage_unfilter_agg_only_inclusion_flags_stg"
+      ],
+      "depends_on": [
+        "0060_print_share_usage_unfiltered_agg_pass2_v2"
+      ]
+    },
+    "0070.cols": {
+      "label": "cte_1",
+      "index": 1,
+      "description": "simple cte to add two new columns to next cte",
+      "sources": [],
+      "depends_on": []
+    },
+    "0070.unpivot_ib": {
+      "label": "cte_2",
+      "index": 2,
+      "description": "add transformations to phx ib output",
+      "sources": [
+        "ref_enrich.v_ie_hp_plus_ib_enrich_laser_dash"
+      ],
+      "depends_on": [
+        "0070.cols"
+      ]
+    },
+    "0070.ref_data": {
+      "label": "cte_3",
+      "index": 3,
+      "description": "printer ref data",
+      "sources": [
+        "ref_enrich.v_consolidate_printer_intro_date"
+      ],
+      "depends_on": []
+    },
+    "0070.ib_data": {
+      "label": "cte_4",
+      "index": 4,
+      "description": "enrich phx ib output",
+      "sources": [
+        "ref_enrich.date_month_ref",
+        "ref_enrich.country_ref_dash",
+        "ref_enrich.tri_product_ref_dash"
+      ],
+      "depends_on": [
+        "0070.unpivot_ib",
+        "0070.ref_data"
+      ]
+    },
+    "0070.main_select": {
+      "label": "main_select",
+      "index": 5,
+      "description": "final step",
+      "sources": [],
+      "depends_on": [
+        "0070.psu_agg",
+        "0070.ib_data"
+      ]
+    }
+  },
+  "sira_extract_sql": {
+    "sira_extract.cte1": {
+      "label": "cte_0",
+      "index": 0,
+      "description": "calcs",
+      "sources": [
+        "ref_enrich.country_ref"
+      ],
+      "depends_on": [
+        "0070_print_share_usage_agg"
+      ]
+    },
+    "sira_extract.main_select": {
+      "label": "main_select",
+      "index": 1,
+      "description": "final step",
+      "sources": [],
+      "depends_on": [
+        "sira_extract.cte1"
+      ]
+    }
+  }
+}
